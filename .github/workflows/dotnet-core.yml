@@ -1,0 +1,46 @@
+name: .NET Core
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download Everest stripped lib
+      uses: robinraju/release-downloader@v1.11
+      with:
+        repository: EverestAPI/Everest
+        latest: true
+        fileName: lib-stripped.zip
+
+    - name: Extract lib-stripped.zip
+      run: unzip lib-stripped.zip
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build Source/Shockeline.csproj --configuration Release --no-restore
+      env:
+        CelestePrefix: ${{ github.workspace }}/lib-stripped
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Shockeline
+        path: |
+          everest.yaml
+          bin
+          Ahorn/**/*
+          Audio/**/*
+          Dialog/**/*
+          Graphics/**/*
+          Loenn/**/*
